@@ -4,11 +4,24 @@ export @MixedBag, eltypes, AbstractMixedBag
 
 abstract AbstractMixedBag
 
-fieldname(T) = Symbol(:_, T)
+
+Base.eachindex(iter::SimpleVector) = 1:length(iter)
+function firstindex(condition, iter)
+    for i in eachindex(iter)
+        condition(iter[i]) && return i
+    end
+    throw(error("No index satisfying condition=$condition in iter=$iter"))
+end
+
+function fieldname(T, types)
+    i = firstindex(S -> S==T,types)
+    Symbol("_$i")
+end
+
 function mixedbag_fields(types)
     fields = []
     for T in types
-        fname = fieldname(T)
+        fname = fieldname(T, types)
         field = :($(fname) :: Vector{$T})
         push!(fields, field)
     end
@@ -43,7 +56,7 @@ function (::Type{Bag}){Bag <: AbstractMixedBag}(args...)
 end
 
 @generated function Base.getindex{T}(bag::AbstractMixedBag, ::Type{T})
-    :(bag.$(fieldname(T)))
+    :(bag.$(fieldname(T, eltypes(bag))))
 end
 
 

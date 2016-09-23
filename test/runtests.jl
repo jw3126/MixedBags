@@ -1,8 +1,17 @@
 using MixedBags
+const MB = MixedBags
 using Base.Test
 
 
+
+
+
 @MixedBag Bar Int64 Float64
+
+@testset "Test Internals" begin
+    @test MB.firstindex((x -> x=="b"), ["a", "b", "c"]) == 2
+    @test MB.fieldname(Int, eltypes(Bar)) == Symbol("_1")
+end
 
 @testset "@MixedBag Bar Int64 Float64" begin
     @test eltypes(Bar) == [Int64, Float64]
@@ -33,5 +42,17 @@ using Base.Test
         @test mapreduce(√, +, 0, b) ≈ mapreduce(√, +, 0, [1,2,3,0.3])
     end
 
-    @test Bar(1, 2) == Bar(1, 2)
+    #@test Bar(1, 2) == Bar(1, 2)
+end
+
+
+typealias MyInt Int
+@MixedBag ComplicatedBag Matrix{String} Matrix{MyInt}
+
+@testset "Bag with compicated types" begin
+    cb = ComplicatedBag()
+    @test cb == ComplicatedBag()
+    @test push!(cb, ["a" "b"; "c" "d"]) == ComplicatedBag(Array{String,2}[String["a" "b"; "c" "d"]],Array{Int64,2}[])
+
+
 end
