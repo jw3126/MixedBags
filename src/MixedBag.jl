@@ -1,11 +1,11 @@
 module MixedBag
 
-export @MixedBag, eltypes
+export @MixedBag, eltypes, AbstractMixedBag
 
 abstract AbstractMixedBag
 
 fieldname(T) = Symbol(:_, T)
-function mixedbag_fields(types...)
+function mixedbag_fields(types)
     fields = []
     for T in types
         fname = fieldname(T)
@@ -15,22 +15,23 @@ function mixedbag_fields(types...)
     fields
 end
 
-function typedef_mixedbag(name::Symbol, types...)
+function typedef_mixedbag(name::Symbol, types)
     mutablility = false
-    fields = mixedbag_fields(types...)
+    fields = mixedbag_fields(types)
     fieldblock = Expr(:block,fields...)
-    Expr(:type, mutablility, :($name <: AbstractMixedBag), fieldblock)
+    Expr(:type, mutablility, :($name <: MixedBag.AbstractMixedBag), fieldblock)
 end
 
 eltypes{Bag <: AbstractMixedBag}(::Type{Bag}) = map(eltype, Bag.types)
-eltypes(b::AbstractMixedBag}) = eltypes(typeof(b))
+eltypes(b::AbstractMixedBag) = eltypes(typeof(b))
 
 
 # constructors
-@generated (::Type{Bag}){Bag <: AbstractMixedBag}() = empty_constructor_impl(Bag)
-function empty_constructor_impl(Bag)
-    args = [:($T[]) for T in eltypes(Bag)]
-    Expr(:call, Symbol(Bag.name), args...)
+function empty_constructor_impl(name, types)
+    args = [:($T[]) for T in types]
+    rhs = Expr(:call, name, args...)
+    lhs = Expr(:call, name, )
+    Expr(Symbol("="), lhs, rhs)
 end
 
 function (::Type{Bag}){Bag <: AbstractMixedBag}(args...)
@@ -87,7 +88,11 @@ function mapreduce_impl(f, op, v0, T)
 end
 
 macro MixedBag(name, types...)
-   typedef_mixedbag(name, types...)
+    Expr(:block,
+        typedef_mixedbag(name, types),
+        empty_constructor_impl(name, types)
+
+    ) |> esc
 end
 
 end # module

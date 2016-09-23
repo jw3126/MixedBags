@@ -3,6 +3,7 @@ using Base.Test
 
 
 @MixedBag Bar Int64 Float64
+
 @testset "@MixedBag Bar Int64 Float64" begin
     @test eltypes(Bar) == [Int64, Float64]
 
@@ -18,7 +19,7 @@ using Base.Test
     end
 
     @testset "Mixed constructor" begin
-        b = Bar(1, 2, 0.3)
+        b = Bar([1, 2], [0.3])
         @test b == Bar(1, 2, 0.3)
         @test b != Bar(1,2,3)
         @test push!(b, 3) == Bar(1,2,3, 0.3)
