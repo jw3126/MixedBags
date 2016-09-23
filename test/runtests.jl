@@ -1,4 +1,4 @@
-using MixedBag
+using MixedBags
 using Base.Test
 
 

@@ -1,4 +1,4 @@
-module MixedBag
+module MixedBags
 
 export @MixedBag, eltypes, AbstractMixedBag
 
@@ -19,7 +19,7 @@ function typedef_mixedbag(name::Symbol, types)
     mutablility = false
     fields = mixedbag_fields(types)
     fieldblock = Expr(:block,fields...)
-    Expr(:type, mutablility, :($name <: MixedBag.AbstractMixedBag), fieldblock)
+    Expr(:type, mutablility, :($name <: MixedBags.AbstractMixedBag), fieldblock)
 end
 
 eltypes{Bag <: AbstractMixedBag}(::Type{Bag}) = map(eltype, Bag.types)
