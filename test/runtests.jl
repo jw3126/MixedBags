@@ -55,7 +55,7 @@ end
         @test b == Bar(1,2,3,50,60, 0.3)
     end
 
-    #@test Bar(1, 2) == Bar(1, 2)
+    # @test Bar(1, 2) == Bar(1, 2)
 end
 
 

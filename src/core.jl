@@ -12,8 +12,10 @@ function firstindex(condition, iter)
 end
 
 function fieldname(T, types)
-    i = firstindex(S -> S==T,types)
-    Symbol("_$i")
+    for i in eachindex(types)
+        (types[i] == T) && return Symbol("_$i")
+    end
+    throw(error("No field T=$T in types=$types"))
 end
 
 function mixedbag_fields(types)
@@ -45,6 +47,9 @@ function empty_constructor_impl(name, types)
     Expr(Symbol("="), lhs, rhs)
 end
 
+# copy constructor
+(::Type{Bag}){Bag <: AbstractMixedBag}(b::Bag) = b
+
 function (::Type{Bag}){Bag <: AbstractMixedBag}(args...)
     b = Bag()
     for arg in args
@@ -58,6 +63,5 @@ macro MixedBag(name, types...)
     Expr(:block,
         typedef_mixedbag(name, types),
         empty_constructor_impl(name, types)
-
     ) |> esc
 end
